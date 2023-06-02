@@ -1,4 +1,4 @@
-export GOBIN=$(PWD)/bin
+export GOBIN ?= /usr/local/google/home/howardjohn/go/bin
 export PROTOBUF_ROOT=$(PWD)/_vendor/protobuf-21.12
 
 .PHONY: install test gen-conformance gen-include genall
@@ -45,6 +45,17 @@ gen-testproto:
 		testproto/proto3opt/opt.proto \
 		testproto/proto2/scalars.proto \
 		|| exit 1;
+
+gen-wellknown:
+	(cd wellknown; protoc \
+		--go_out=. --plugin protoc-gen-go="${GOBIN}/protoc-gen-go" \
+		--go_opt=paths=source_relative \
+		--go-vtproto_out=allow-empty=true:. --plugin protoc-gen-go-vtproto="${GOBIN}/protoc-gen-go-vtproto" \
+		--go-vtproto_opt=features=marshal+unmarshal+size,paths=source_relative \
+		./any.proto \
+		./struct.proto \
+		./wrappers.proto \
+		|| exit 1;)
 
 genall: install gen-include gen-conformance gen-testproto
 
