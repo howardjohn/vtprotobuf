@@ -9,7 +9,10 @@ import (
 )
 
 var methods = Marshaller(func(ms protoreflect.ProtoMessage) ([]byte, error) {
-	m := ms.(*DoubleValue)
+	return ms.(*DoubleValue).FastHandMarshal()
+})
+
+func (m *DoubleValue) FastHandMarshal() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -18,8 +21,7 @@ var methods = Marshaller(func(ms protoreflect.ProtoMessage) ([]byte, error) {
 	d[0] = 0x9
 	binary.LittleEndian.PutUint64(d[1:], math.Float64bits(m.Value))
 	return d, nil
-})
-
+}
 func (_ *DoubleValue) ProtoMethods() *protoiface.Methods {
 	return methods
 }
